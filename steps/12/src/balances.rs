@@ -34,16 +34,28 @@ impl Pallet {
 		to: String,
 		amount: u128,
 	) -> Result<(), &'static str> {
-		/* TODO:
-			- Get the balance of account `caller`.
-			- Get the balance of account `to`.
+		// Get the balance of account `caller`
+		let caller_balance = self.balance(&caller);
 
-			- Use safe math to calculate a `new_caller_balance`.
-			- Use safe math to calculate a `new_to_balance`.
+		// Get the balance of account `to`
+		let to_balance = self.balance(&to);
 
-			- Insert the new balance of `caller`.
-			- Insert the new balance of `to`.
-		*/
+		// use safe math to calculate a `new_caller_balance`
+		let new_caller_balance = caller_balance
+			.checked_sub(amount)
+			.ok_or("Not enough funds.")?;
+
+		// use safe math to calculate a `new_to_balance`
+		let new_to_balance = to_balance
+			.checked_add(amount)
+			.ok_or("Overflow")?;
+
+		// Insert the new balance of `caller`
+		self.balances.insert(caller, new_caller_balance);
+
+
+		// Insert the new balance of `to`
+		self.balances.insert(to, new_to_balance);
 
 		Ok(())
 	}
@@ -68,5 +80,21 @@ mod tests {
 			- That `alice` can successfully transfer funds to `bob`.
 			- That the balance of `alice` and `bob` is correctly updated.
 		*/
+
+		let mut balances = super::Pallet::new();
+
+		// initial setup
+		balances.set_balance(&"alice".to_string(), 100);
+
+		let result = balances.transfer(
+			"alice".to_string(),
+			"bob".to_string(),
+			50,
+		);
+
+		assert_eq!(result, Ok(()));
+		assert_eq!(balances.balance(&"alice".to_string()), 50);
+		assert_eq!(balances.balance(&"bob".to_string()), 50);
+		
 	}
 }
