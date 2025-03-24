@@ -1,4 +1,5 @@
 /* TODO: Import `std::collections::BTreeMap` so it can be used below. */
+use std::collections::BTreeMap;
 
 /// This is the Balances Module.
 /// It is a simple module which keeps track of how much balance each account has in this state
@@ -6,6 +7,7 @@
 pub struct Pallet {
 	// A simple storage mapping from accounts (`String`) to their balances (`u128`).
 	/* TODO: Add a field `balances` which is a `BTreeMap` fom `String` to `u128`. */
+	balances: BTreeMap<String, u128>,
 }
 
 impl Pallet {
@@ -13,6 +15,6 @@ impl Pallet {
 	pub fn new() -> Self {
 		/* TODO: Return a new instance of the `Pallet` struct. */
 		/* TODO: Remove `unimplemented!()`. */
-		unimplemented!()
+		Self { balances: BTreeMap::new() }
 	}
 }
