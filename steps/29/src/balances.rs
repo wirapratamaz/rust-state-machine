@@ -1,8 +1,8 @@
 /* TODO: You might need to import some stuff for this step. */
 use std::collections::BTreeMap;
-
-type AccountId = String;
-type Balance = u128;
+use std::cmp::Ord;
+use num::{CheckedAdd, CheckedSub, Zero};
+use std::fmt::Debug;
 
 /*
 	TODO:
@@ -16,7 +16,7 @@ type Balance = u128;
 /// It is a simple module which keeps track of how much balance each account has in this state
 /// machine.
 #[derive(Debug)]
-pub struct Pallet {
+pub struct Pallet<AccountId, Balance> {
 	// A simple storage mapping from accounts to their balances.
 	balances: BTreeMap<AccountId, Balance>,
 }
@@ -32,7 +32,11 @@ pub struct Pallet {
 	NOTE: You might need to adjust some of the functions below to satisfy the borrow checker.
 */
 
-impl Pallet {
+impl<AccountId, Balance> Pallet<AccountId, Balance> 
+where
+	AccountId: Ord + Clone,
+	Balance: Copy + PartialOrd + PartialEq + CheckedAdd + CheckedSub + Zero,
+{
 	/// Create a new instance of the balances module.
 	pub fn new() -> Self {
 		Self { balances: BTreeMap::new() }
@@ -46,7 +50,7 @@ impl Pallet {
 	/// Get the balance of an account `who`.
 	/// If the account has no stored balance, we return zero.
 	pub fn balance(&self, who: &AccountId) -> Balance {
-		*self.balances.get(who).unwrap_or(&0)
+		*self.balances.get(who).unwrap_or(&Balance::zero())
 	}
 
 	/// Transfer `amount` from one account to another.
@@ -61,8 +65,8 @@ impl Pallet {
 		let caller_balance = self.balance(&caller);
 		let to_balance = self.balance(&to);
 
-		let new_caller_balance = caller_balance.checked_sub(amount).ok_or("Not enough funds.")?;
-		let new_to_balance = to_balance.checked_add(amount).ok_or("Overflow")?;
+		let new_caller_balance = caller_balance.checked_sub(&amount).ok_or("Not enough funds.")?;
+		let new_to_balance = to_balance.checked_add(&amount).ok_or("Overflow")?;
 
 		self.balances.insert(caller, new_caller_balance);
 		self.balances.insert(to, new_to_balance);
@@ -73,13 +77,15 @@ impl Pallet {
 
 #[cfg(test)]
 mod tests {
+	use super::*;
+
 	#[test]
 	fn init_balances() {
 		/*
 			TODO:
 			When creating an instance of `Pallet`, you should explicitly define the types you use.
 		*/
-		let mut balances = super::Pallet::new();
+		let mut balances = Pallet::<String, u128>::new();
 
 		assert_eq!(balances.balance(&"alice".to_string()), 0);
 		balances.set_balance(&"alice".to_string(), 100);
@@ -93,7 +99,7 @@ mod tests {
 			TODO:
 			When creating an instance of `Pallet`, you should explicitly define the types you use.
 		*/
-		let mut balances = super::Pallet::new();
+		let mut balances = Pallet::<String, u128>::new();
 
 		assert_eq!(
 			balances.transfer("alice".to_string(), "bob".to_string(), 51),

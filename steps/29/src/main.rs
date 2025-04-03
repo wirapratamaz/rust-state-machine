@@ -8,6 +8,8 @@ mod types {
 	/*
 		TODO: Move your type definitions for `AccountId` and `Balance` here.
 	*/
+	pub type AccountId = String;
+	pub type Balance = u128;
 }
 
 // This is our main Runtime.
@@ -16,7 +18,7 @@ mod types {
 pub struct Runtime {
 	system: system::Pallet,
 	/* TODO: Use your type definitions for your new generic `balances::Pallet`. */
-	balances: balances::Pallet,
+	balances: balances::Pallet<types::AccountId, types::Balance>,
 }
 
 impl Runtime {
