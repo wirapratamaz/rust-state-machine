@@ -103,27 +103,25 @@ fn main() {
 	// Initialize the system with some initial balance.
 	runtime.balances.set_balance(&alice, 100);
 
-	// start emulating a block
-	runtime.system.inc_block_number();
-	assert_eq!(runtime.system.block_number(), 1);
-
-	// first transaction
-	runtime.system.inc_nonce(&alice);
-	let _res = runtime
-		.balances
-		.transfer(alice.clone(), bob, 30)
-		.map_err(|e| eprintln!("{}", e));
-
-	// second transaction
-	runtime.system.inc_nonce(&alice);
-	let _res = runtime.balances.transfer(alice, charlie, 20).map_err(|e| eprintln!("{}", e));
-
 	/*
 		TODO: Replace the logic above with a new `Block`.
 			- Set the block number to 1 in the `Header`.
 			- Move your existing transactions into extrinsic format, using the
 			  `Extrinsic` and `RuntimeCall`.
 	*/
+	let block_1 = types::Block {
+		header: support::Header { block_number: 1 },
+		extrinsics: vec![
+			support::Extrinsic {
+				caller: alice.clone(),
+				call: RuntimeCall::BalancesTransfer { to: bob.clone(), amount: 30 },
+			},
+			support::Extrinsic {
+				caller: alice,
+				call: RuntimeCall::BalancesTransfer { to: charlie, amount: 20 },
+			}
+		]
+	};
 
 	/*
 		TODO:
@@ -131,7 +129,8 @@ fn main() {
 		If the `execute_block` function returns an error, you should panic!
 		We `expect` that all the blocks being executed must be valid.
 	*/
-
+	runtime.execute_block(block_1).expect("Block execution failed");
+	
 	// Simply print the debug format of our runtime state.
 	println!("{:#?}", runtime);
 }

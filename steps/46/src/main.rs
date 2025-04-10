@@ -24,6 +24,7 @@ pub enum RuntimeCall {
 		- `to`: an `AccountId`
 		- `amount`: a `Balance`
 	*/
+	BalancesTransfer { to: types::AccountId, amount: types::Balance },
 }
 
 // This is our main Runtime.
@@ -95,6 +96,11 @@ impl crate::support::Dispatch for Runtime {
 
 			You should propagate any errors from the call back up this function.
 		*/
+		match runtime_call {
+			RuntimeCall::BalancesTransfer { to, amount } => {
+				self.balances.transfer(caller, to, amount)?;
+			},
+		}
 		Ok(())
 	}
 }

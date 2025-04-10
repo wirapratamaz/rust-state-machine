@@ -13,6 +13,9 @@ mod types {
 	/* TODO: Define a concrete `Extrinsic` type using `AccountId` and `RuntimeCall`. */
 	/* TODO: Define a concrete `Header` type using `BlockNumber`. */
 	/* TODO: Define a concrete `Block` type using `Header` and `Extrinsic`. */
+	pub type Extrinsic = support::Extrinsic<AccountId, RuntimeCall>;
+	pub type Header = support::Header<BlockNumber>;
+	pub type Block = support::Block<Header, Extrinsic>;
 }
 
 // These are all the calls which are exposed to the world.

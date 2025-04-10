@@ -1,5 +1,6 @@
 use num::traits::{CheckedAdd, CheckedSub, Zero};
 use std::collections::BTreeMap;
+use crate::support::DispatchResult;
 
 /// The configuration trait for the Balances Module.
 /// Contains the basic types needed for handling balances.
@@ -44,7 +45,7 @@ impl<T: Config> Pallet<T> {
 		caller: T::AccountId,
 		to: T::AccountId,
 		amount: T::Balance,
-	) -> Result<(), &'static str> {
+	) -> DispatchResult {
 		let caller_balance = self.balance(&caller);
 		let to_balance = self.balance(&to);
 

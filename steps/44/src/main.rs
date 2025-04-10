@@ -3,6 +3,7 @@ mod support;
 mod system;
 
 /* TODO: Import `crate::support::Dispatch` so that you can access the `dispatch` function. */
+use crate::support::Dispatch;
 
 // These are the concrete types we will use in our simple state machine.
 // Modules are configured for these types directly, and they satisfy all of our
@@ -61,6 +62,19 @@ impl Runtime {
 				- You can extend the error message to include information like the block number and
 				  extrinsic number.
 		*/
+		self.system.inc_block_number();
+		if block.header.block_number != self.system.block_number() {
+			return Err("Block number mismatch");
+		}
+		for (i, support::Extrinsic { caller, call }) in block.extrinsics.into_iter().enumerate() {
+			self.system.inc_nonce(&caller);
+			let _res = self.dispatch(caller, call).map_err(|e| {
+				eprintln!(
+					"Extrinsic Error\n\tBlock Number: {}\n\tExtrinsic Number: {}\n\tError: {}",
+					block.header.block_number, i, e
+				)
+			});
+		}
 		Ok(())
 	}
 }

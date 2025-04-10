@@ -8,6 +8,8 @@ mod types {
 	pub type AccountId = String;
 	pub type Balance = u128;
 	/* TODO: Move your type definitions for `BlockNumber` and `Nonce` here. */
+	pub type BlockNumber = u64;
+	pub type Nonce = u64;
 }
 
 // This is our main Runtime.
@@ -15,7 +17,7 @@ mod types {
 #[derive(Debug)]
 pub struct Runtime {
 	/* TODO: Use your type definitions for your new generic `system::Pallet`. */
-	system: system::Pallet,
+	system: system::Pallet<types::AccountId, types::BlockNumber, types::Nonce>,
 	balances: balances::Pallet<types::AccountId, types::Balance>,
 }
 
