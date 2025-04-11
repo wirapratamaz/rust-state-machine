@@ -6,7 +6,7 @@
     ],
     "settings": {
         "rust-analyzer.linkedProjects": [
-            "./steps/14/Cargo.toml"
+            "./steps/54/Cargo.toml"
         ],
         "rust-analyzer.cargo.features": "all"
     }
