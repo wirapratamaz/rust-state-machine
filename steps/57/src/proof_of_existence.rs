@@ -27,7 +27,7 @@ impl<T: Config> Pallet<T> {
 	/// Get the owner (if any) of a claim.
 	pub fn get_claim(&self, claim: &T::Content) -> Option<&T::AccountId> {
 		/* TODO: `get` the `claim` */
-		unimplemented!()
+		self.claims.get(claim)
 	}
 
 	/// Create a new claim on behalf of the `caller`.
@@ -35,6 +35,10 @@ impl<T: Config> Pallet<T> {
 	pub fn create_claim(&mut self, caller: T::AccountId, claim: T::Content) -> DispatchResult {
 		/* TODO: Check that a `claim` does not already exist. If so, return an error. */
 		/* TODO: `insert` the claim on behalf of `caller`. */
+		if self.claims.contains_key(&claim) {
+			return Err("Claim already exists");
+		}
+		self.claims.insert(claim, caller);
 		Ok(())
 	}
 
@@ -45,6 +49,11 @@ impl<T: Config> Pallet<T> {
 		/* TODO: Get the owner of the `claim` to be revoked. */
 		/* TODO: Check that the `owner` matches the `caller`. */
 		/* TODO: If all checks pass, then `remove` the `claim`. */
+		let owner = self.get_claim(&claim).ok_or("Claim does not exist")?;
+		if caller != *owner {
+			return Err("Caller is not the owner of the claim");
+		}
+		self.claims.remove(&claim);
 		Ok(())
 	}
 }
@@ -72,5 +81,11 @@ mod test {
 				- Check that all functions work successfully.
 				- Check that all error conditions error as expected.
 		*/
+		let mut pallet = super::Pallet::<TestConfig>::new();
+		assert_eq!(pallet.get_claim(&"Hello, world!"), None);
+		assert_eq!(pallet.create_claim("alice", "Hello, world!"), Ok(()));
+		assert_eq!(pallet.get_claim(&"Hello, world!"), Some(&"alice"));
+		assert_eq!(pallet.revoke_claim("alice", "Hello, world!"), Ok(()));
+		assert_eq!(pallet.get_claim(&"Hello, world!"), None);
 	}
 }

@@ -2,6 +2,7 @@ mod balances;
 /* TODO: Import the `proof_of_existence` module. */
 mod support;
 mod system;
+mod proof_of_existence;
 
 use crate::support::Dispatch;
 

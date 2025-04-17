@@ -3,6 +3,8 @@ mod proof_of_existence;
 mod support;
 mod system;
 
+use support::Block;
+
 use crate::support::Dispatch;
 
 // These are the concrete types we will use in our simple state machine.
@@ -128,7 +130,7 @@ fn main() {
 				call: RuntimeCall::Balances(balances::Call::Transfer { to: bob, amount: 30 }),
 			},
 			support::Extrinsic {
-				caller: alice,
+				caller: alice.clone(),
 				call: RuntimeCall::Balances(balances::Call::Transfer { to: charlie, amount: 20 }),
 			},
 		],
@@ -140,12 +142,39 @@ fn main() {
 			- Make sure to set the block number correctly.
 			- Feel free to allow some extrinsics to fail, and see the errors appear.
 	*/
-
+	let block_2 =  types::Block{
+		header: support::Header { block_number: 2 },
+		extrinsics: vec![
+			support::Extrinsic {
+				caller: alice.clone(),
+				call: RuntimeCall::ProofOfExistence(proof_of_existence::Call::CreateClaim { claim: "Hello, world!" }),
+			},
+			support::Extrinsic {
+				caller: alice.clone(),
+				call: RuntimeCall::ProofOfExistence(proof_of_existence::Call::CreateClaim { claim: "Hello, world!" }),
+			},
+		],
+	};
+	let block_3 = types::Block{
+		header: support::Header { block_number: 3 },
+		extrinsics: vec![
+			support::Extrinsic {
+				caller: alice.clone(),
+				call: RuntimeCall::ProofOfExistence(proof_of_existence::Call::RevokeClaim { claim: "Hello, world!" }),
+			},
+			support::Extrinsic {
+				caller: alice.clone(),
+				call: RuntimeCall::ProofOfExistence(proof_of_existence::Call::RevokeClaim { claim: "Hello, world!" }),
+			},
+		],
+	};
+	
 	// Execute the extrinsics which make up our block.
 	// If there are any errors, our system panics, since we should not execute invalid blocks.
 	runtime.execute_block(block_1).expect("invalid block");
 	/* TODO: Execute your new block(s). */
-
+	runtime.execute_block(block_2).expect("invalid block");
+	runtime.execute_block(block_3).expect("invalid block");
 	// Simply print the debug format of our runtime state.
 	println!("{:#?}", runtime);
 }

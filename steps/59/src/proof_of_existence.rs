@@ -65,6 +65,9 @@ pub enum Call<T: Config> {
 		Remember that you only need to pass in the `claim` data, as `caller` information is passed
 		in through the `dispatch` logic.
 	*/
+	CreateClaim { claim: T::Content },
+	RevokeClaim { claim: T::Content },
+
 	RemoveMe(core::marker::PhantomData<T>),
 }
 
@@ -77,6 +80,18 @@ pub enum Call<T: Config> {
 	In your `dispatch` logic, match on `call` and forward the `caller` and `claim` data to the
 	appropriate function.
 */
+impl<T: Config> crate::support::Dispatch for Pallet<T> {
+	type Caller = T::AccountId;
+	type Call = Call<T>;
+
+	fn dispatch(&mut self, caller: Self::Caller, call: Self::Call) -> DispatchResult {
+		match call {
+			Call::CreateClaim { claim } => self.create_claim(caller, claim),
+			Call::RevokeClaim { claim } => self.revoke_claim(caller, claim),
+			Call::RemoveMe(_) => Ok(()),
+		}
+	}
+}
 
 #[cfg(test)]
 mod test {
